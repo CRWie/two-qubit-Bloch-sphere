@@ -1,0 +1,250 @@
+###@@@ QUBIT-A (BASE), QUBIT-B (FIBER) CALCULATION @@@###
+import numpy as np
+import quaternion
+###for plotting
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+###For inverse trig calc, esp. for mp.atan2(y,x) calculation
+from mpmath import mp
+mp.dps=15; mp.pretty=True; pi2=2*np.pi; s2=1/np.sqrt(2)
+## MPMath Ranges:  asin(x)=[-pi/2, pi/2]; acos(x)=[pi, 0]; atan(x)=(-pi/2, pi/2); 
+### atan2(y,x) returns angle (-pi, pi] for correct x,y quadrant ###
+### For Quaternion Calculus:
+### Quaternion imaginary units i, j, k
+i=np.quaternion(0,1,0,0)
+j=np.quaternion(0,0,1,0)
+k=np.quaternion(0,0,0,1)
+
+### You may Edit: the Real and Imaginary Parts for Four Amplitudes
+alpha_real=1/np.sqrt(3); alpha_imag=0; 
+beta_real=0; beta_imag=1/np.sqrt(3); 
+gamma_real=1/np.sqrt(3); gamma_imag=0; 
+delta_real=0; delta_imag=0; 
+### Do Not Edit 
+aq=np.quaternion(alpha_real, 0, 0, alpha_imag)
+bq=np.quaternion(beta_real, 0, 0, beta_imag)
+gq=np.quaternion(gamma_real, 0, 0, gamma_imag)
+dq=np.quaternion(delta_real, 0, 0, delta_imag)
+
+### Or you can use the following for Rotation Gates on 2-qubit Quantum Circuit
+### First give rotation angles eta, omega and nu
+### Then, uncomment the aq, bq, gq and dq for the circuit of your choice
+
+######@@@@@@@@@@@
+### FOR A QUANTUM CIRCUIT WITH ROTATION OPERATORS ###
+### Rx,y(eta) on Control Qubit
+### C-Rx,y(omega)
+### Rx,y,z(nu) on qubit-A or qubit-B
+### Input: Rotation Operator Angles R(eta) x I, C-R(omega), and R(nu) x I or I x R(nu) 
+eta=60  ##degrees, to induce initial superposition  
+omega=70 #controlled-Rotation Angle in degrees
+nu=0  #single-qubit rotation 
+
+### Degree to Radian.  DO NOT EDIT.
+eta=eta/180; omega=omega/180; nu=nu/180
+eta=eta*np.pi/2; omega=omega*np.pi/2; nu=nu*np.pi/2  ##2eta = rot angle, etc.   
+## to trigonometric values.  Do not edit
+seta=np.sin(eta); ceta=np.cos(eta)
+somega=np.sin(omega); comega=np.cos(omega)
+snu=np.sin(nu); cnu=np.cos(nu)
+
+### Data Input alpha, beta, gamma, delta ###
+###=== add single-qubit Rotation after entanglement ===###
+### (10-1) Rx(2eta) x I ->  C-Rx(2omega)  -> Rz(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(0,0,0,0)
+# gq=np.quaternion(seta*comega*snu,0,0,-seta*comega*cnu); dq=np.quaternion(-seta*somega*cnu,0,0,-seta*somega*snu)
+
+### (10-1x) Rx(2eta) x I ->  C-Rx(2omega) -> Rx(2nu) x I 
+# aq=np.quaternion(ceta*cnu-seta*comega*snu,0,0,0); bq=np.quaternion(0,0,0,seta*somega*snu)
+# gq=np.quaternion(0,0,0,-ceta*snu-seta*comega*cnu); dq=np.quaternion(-seta*somega*cnu,0,0,0)
+
+### (10-1y) Rx(2eta) x I ->  C-Rx(2omega) -> Ry(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,seta*comega*snu); bq=np.quaternion(seta*somega*snu,0,0,0)
+# gq=np.quaternion(ceta*snu,0,0,-seta*comega*cnu); dq=np.quaternion(-seta*somega*cnu,0,0,0)
+
+### (10-2) Rx(2eta) x I ->  C-Rx(2omega)  -> I x Rz(2nu)   note:(13-1) 
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(0,0,0,0)
+# gq=np.quaternion(-seta*comega*snu,0,0,-seta*comega*cnu); dq=np.quaternion(-seta*somega*cnu,0,0,-seta*somega*snu)
+
+### (10-2x) Rx(2eta) x I ->  C-Rx(2omega) -> I x Rx(2nu) 
+# aq=np.quaternion(ceta*cnu,0,0,0); bq=np.quaternion(0,0,0,-ceta*snu)
+# gq=np.quaternion(0,0,0,seta*somega*snu-seta*comega*cnu); dq=np.quaternion(-seta*comega*snu-seta*somega*cnu,0,0,0)
+
+### (10-2y) Rx(2eta) x I ->  C-Rx(2omega) -> I x Ry(2nu)
+# aq=np.quaternion(ceta*cnu,0,0,0); bq=np.quaternion(ceta*snu,0,0,0)
+# gq=np.quaternion(seta*somega*snu,0,0,-seta*comega*cnu); dq=np.quaternion(-seta*somega*cnu,0,0,-seta*comega*snu)
+
+### (11-1) Rx(2eta) x I ->  C-Ry(2omega) -> Rz(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(0,0,0,0)
+# gq=np.quaternion(seta*comega*snu,0,0,-seta*comega*cnu); dq=np.quaternion(seta*somega*snu,0,0,-seta*somega*cnu)
+
+### (11-1x) Rx(2eta) x I ->  C-Ry(2omega) -> Rx(2nu) x I 
+# aq=np.quaternion(ceta*cnu-seta*comega*snu,0,0,0); bq=np.quaternion(-seta*somega*snu,0,0,0)
+# gq=np.quaternion(0,0,0,-ceta*snu-seta*comega*cnu); dq=np.quaternion(0,0,0,-seta*somega*cnu)
+
+### (11-1y) Rx(2eta) x I ->  C-Ry(2omega) -> Ry(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,seta*comega*snu); bq=np.quaternion(0,0,0,seta*somega*snu)
+# gq=np.quaternion(ceta*snu,0,0,-seta*comega*cnu); dq=np.quaternion(0,0,0,-seta*somega*cnu)
+
+### (11-2) Rx(2eta) x I ->  C-Ry(2omega) -> I x Rz(2nu)  note:(15-1)
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(0,0,0,0)
+# gq=np.quaternion(-seta*comega*snu,0,0,-seta*comega*cnu); dq=np.quaternion(seta*somega*snu,0,0,-seta*somega*cnu)
+
+### (11-2x) Rx(2eta) x I ->  C-Ry(2omega) -> I x Rx(2nu) 
+# aq=np.quaternion(ceta*cnu,0,0,0); bq=np.quaternion(0,0,0,-ceta*snu)
+# gq=np.quaternion(-seta*somega*snu,0,0,-seta*comega*cnu); dq=np.quaternion(-seta*comega*snu,0,0,-seta*somega*cnu)
+
+### (11-2y) Rx(2eta) x I ->  C-Ry(2omega) -> I x Ry(2nu)
+# aq=np.quaternion(ceta*cnu,0,0,0); bq=np.quaternion(ceta*snu,0,0,0)
+# gq=np.quaternion(0,0,0,seta*somega*snu-seta*comega*cnu); dq=np.quaternion(0,0,0,-seta*comega*snu-seta*somega*cnu)
+
+### (9-1) Ry(2eta) x I ->  C-Rx(2omega) -> Rz(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(0,0,0,0)
+# gq=np.quaternion(seta*comega*cnu,0,0,seta*comega*snu); dq=np.quaternion(seta*somega*snu,0,0,-seta*somega*cnu)
+
+### (9-1x) Ry(2eta) x I ->  C-Rx(2omega) -> Rx(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,-seta*comega*snu); bq=np.quaternion(-seta*somega*snu,0,0,0)
+# gq=np.quaternion(seta*comega*cnu,0,0,-ceta*snu); dq=np.quaternion(0,0,0,-seta*somega*cnu)
+
+### (9-1y) Ry(2eta) x I ->  C-Rx(2omega) -> Ry(2nu) x I 
+# aq=np.quaternion(ceta*cnu-seta*comega*snu,0,0,0); bq=np.quaternion(0,0,0,seta*somega*snu)
+# gq=np.quaternion(ceta*snu+seta*comega*cnu,0,0,0); dq=np.quaternion(0,0,0,-seta*somega*cnu)
+                 
+### (9-2) Ry(2eta) x I ->  C-Rx(2omega) -> I x Rz(2nu)   note:(14-1)
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(0,0,0,0)
+# gq=np.quaternion(seta*comega*cnu,0,0,-seta*comega*snu); dq=np.quaternion(seta*somega*snu,0,0,-seta*somega*cnu)
+
+### (9-2x) Ry(2eta) x I ->  C-Rx(2omega) -> I x Rx(2nu)   
+# aq=np.quaternion(ceta*cnu,0,0,0); bq=np.quaternion(0,0,0,-ceta*snu)
+# gq=np.quaternion(seta*comega*cnu-seta*somega*snu,0,0,0); dq=np.quaternion(0,0,0,-seta*comega*snu-seta*somega*cnu)
+
+### (9-2y) Ry(2eta) x I ->  C-Rx(2omega) -> I x Ry(2nu)   
+# aq=np.quaternion(ceta*cnu,0,0,0); bq=np.quaternion(ceta*snu,0,0,0)
+# gq=np.quaternion(seta*comega*cnu,0,0,seta*somega*snu); dq=np.quaternion(seta*comega*snu,0,0,-seta*somega*cnu)
+
+### (12-1) Ry(2eta) x I ->  C-Ry(2omega) -> Rz(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(0,0,0,0)
+# gq=np.quaternion(seta*comega*cnu,0,0,seta*comega*snu); dq=np.quaternion(seta*somega*cnu,0,0,seta*somega*snu)
+
+### (12-1x) Ry(2eta) x I ->  C-Ry(2omega) -> Rx(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,-seta*comega*snu); bq=np.quaternion(0,0,0,-seta*somega*snu)
+# gq=np.quaternion(seta*comega*cnu,0,0,-ceta*snu); dq=np.quaternion(seta*somega*cnu,0,0,0)
+
+### (12-1y) Ry(2eta) x I ->  C-Ry(2omega) -> Ry(2nu) x I 
+# aq=np.quaternion(ceta*cnu-seta*comega*snu,0,0,0); bq=np.quaternion(-seta*somega*snu,0,0,0)
+# gq=np.quaternion(ceta*snu+seta*comega*cnu,0,0,0); dq=np.quaternion(seta*somega*cnu,0,0,0)
+
+### (12-2) Ry(2eta) x I ->  C-Ry(2omega) -> I x Rz(2nu)  note:(16-1)
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(0,0,0,0)
+# gq=np.quaternion(seta*comega*cnu,0,0,-seta*comega*snu); dq=np.quaternion(seta*somega*cnu,0,0,seta*somega*snu)
+
+### (12-2x) Ry(2eta) x I ->  C-Ry(2omega) -> I x Rx(2nu)
+# aq=np.quaternion(ceta*cnu,0,0,0); bq=np.quaternion(0,0,0,-ceta*snu)
+# gq=np.quaternion(seta*comega*cnu,0,0,-seta*somega*snu); dq=np.quaternion(seta*somega*cnu,0,0,-seta*comega*snu)
+
+### (12-2y) Ry(2eta) x I ->  C-Ry(2omega) -> I x Ry(2nu) 
+# aq=np.quaternion(ceta*cnu,0,0,0); bq=np.quaternion(ceta*snu,0,0,0)
+# gq=np.quaternion(seta*comega*cnu-seta*somega*snu,0,0,0); dq=np.quaternion(seta*comega*snu+seta*somega*cnu,0,0,0)
+
+###=== QUBIT-B is CONTROL ===###
+### (13-1) I x Rx(2eta) ->  Rx(2omega)-C  -> Rz(2nu) x I
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(-seta*comega*snu,0,0,-seta*comega*cnu)
+# gq=np.quaternion(0,0,0,0); dq=np.quaternion(-seta*somega*cnu,0,0,-seta*somega*snu)
+### (13-2) I x Rx(2eta) ->  Rx(2omega)-C  -> I x Rz(2nu)   note:(10-1)
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(seta*comega*snu,0,0,-seta*comega*cnu)
+# gq=np.quaternion(0,0,0,0); dq=np.quaternion(-seta*somega*cnu,0,0,-seta*somega*snu)
+### (14-1) I x Ry(2eta) ->  Rx(2omega)-C  -> Rz(2nu) x I
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(seta*comega*cnu,0,0,-seta*comega*snu)
+# gq=np.quaternion(0,0,0,0); dq=np.quaternion(seta*somega*snu,0,0,-seta*somega*cnu)
+### (14-2) I x Ry(2eta) ->  Rx(2omega)-C  -> I x Rz(2nu)   note:(9-1)
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(seta*comega*cnu,0,0,seta*comega*snu)
+# gq=np.quaternion(0,0,0,0); dq=np.quaternion(seta*somega*snu,0,0,-seta*somega*cnu)
+### (15-1) I x Rx(2eta) ->  Ry(2omega)-C  -> Rz(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(-seta*comega*snu,0,0,-seta*comega*cnu)
+# gq=np.quaternion(0,0,0,0); dq=np.quaternion(seta*somega*snu,0,0,-seta*somega*cnu)
+### (15-2) I x Rx(2eta) ->  Ry(2omega)-C  -> I x Rz(2nu)  note:(11-1)
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(seta*comega*snu,0,0,-seta*comega*cnu)
+# gq=np.quaternion(0,0,0,0); dq=np.quaternion(seta*somega*snu,0,0,-seta*somega*cnu)
+### (16-1) I x Ry(2eta) ->  Ry(2omega)-C  -> Rz(2nu) x I 
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(seta*comega*cnu,0,0,-seta*comega*snu)
+# gq=np.quaternion(0,0,0,0); dq=np.quaternion(seta*somega*cnu,0,0,seta*somega*snu)
+### (16-2) I x Ry(2eta) ->  Ry(2omega)-C  -> I x Rz(2nu)  note:(12-1)
+# aq=np.quaternion(ceta*cnu,0,0,-ceta*snu); bq=np.quaternion(seta*comega*cnu,0,0,seta*comega*snu)
+# gq=np.quaternion(0,0,0,0); dq=np.quaternion(seta*somega*cnu,0,0,seta*somega*snu)
+
+
+###***** CALCULATE: x0, x1, bt, b, t (Basis=Qubit-A) using Quaternion*****###
+abar=np.conjugate(aq);  bbar=np.conjugate(bq)
+x0_coor=2*(np.power(np.absolute(aq),2)+np.power(np.absolute(bq),2))-1  #xo coordinate of qubit-A state
+x1bt=2*(abar*gq+bbar*dq)+2*(aq*dq-bq*gq)*j ## x1 + bt
+x1_coor=x1bt.real  #x1 coordinate of qubit-A state
+bt=x1bt.imag
+b_norm=np.linalg.norm(bt)  #b_norm=|b|
+b_coor=b_norm  #b-coordinate qubit-A sphere with (x1,b,x0) coordinate
+cz_coor=bt[2]  #z-coord of concurrent circle on inner sphere
+if b_norm !=0:
+    if bt[2] < 0:  #use only the Northern Hemisphere for t-sphere: chi > PI/2
+        t=-bt/b_norm  #t=array representing pure imaginary unit quaternion
+        b_coor=-b_norm
+        cz_coor=-bt[2]
+    else:       #bt[2]>=0
+        t=bt/b_norm
+        
+###*** Base-qubit(Qubit-A)Angles: Needed for Fiber-qubit(qubit-B); not for Entanglement, qubit-A ***###
+thetaA=float(mp.acos(x0_coor)) % pi2 ; 
+if (thetaA % np.pi) ==0 :
+    phiA=0 #thetaA = 0 or pi: by assumption because undefined
+else:
+    #phiA=float(mp.acos(x1_coor/mp.sin(thetaA))) % pi2
+    phiA=float(mp.atan2(b_coor, x1_coor)) % pi2
+    
+## prep for the concurrence-circle for the inner sphere
+concurrence=np.linalg.norm([bt[0],bt[1],0])
+sinChi=0 #for undefined t
+
+## prep for the sinChi-circle on outer sphere
+if b_norm != 0:
+    tz_coor=t[2]
+    t_radius=np.linalg.norm([t[0],t[1],0])
+    sinChi=concurrence/b_norm #t is defined
+
+if b_norm !=0 :
+    tA=np.quaternion(0,t[0],t[1],t[2])
+else: 
+    tA=np.quaternion(0,0,0,1)    
+qB=np.cos(thetaA/2)*(aq+bq*j)+np.sin(thetaA/2)*np.exp(-tA*phiA)*(gq+dq*j);
+re=qB.real; ve=qB.imag   ### All Quaternion calc is done by now 
+
+## Find qubit-B coordinates
+if re==0 and ve[2]==0:
+    thetaB=np.pi; phiB=0; zetaB=float(mp.atan2(ve[0],ve[1]) % pi2)  #phiB=0 assumed
+elif ve[0]==0 and ve[1]==0:
+    thetaB=0; phiB=0; zetaB=float(mp.atan2(ve[2],re) % pi2)  #phiB=0 assumed
+else:    # v[0]+v[1] != 0 or re+v[2] != 0 or re*v[0]*v[1]*v[2] !=0
+    zetaB=float(mp.atan2(ve[2],re)) % pi2; PHI=float(mp.atan2(ve[0],ve[1])) % pi2 #PHI=zetaB-phiB
+    phiB=(zetaB-PHI) % pi2 
+    if np.absolute(re) > np.absolute(ve[2]):
+        thetaB=float( 2*mp.acos( min(re/mp.cos(zetaB),1)    ) ) % pi2  ##Note: re/mp.cos(zetaB) > 1 slightly
+    else: 
+        thetaB=float( 2*mp.acos( min(ve[2]/mp.sin(zetaB),1) ) ) % pi2
+
+###*** Re-interpretation: Fiber_azimuth=phiB-2*zetaB; after left-transpose zetaB phase ***###                 
+### Qubit-B Bloch Coordinates ###
+new_phiB=(phiB-2*zetaB) % pi2  ##new azimuth angle of qubit-B   
+xB=np.sin(thetaB)*np.cos(new_phiB)
+yB=np.sin(thetaB)*np.sin(new_phiB)
+zB=np.cos(thetaB)
+
+###*** Re-interpretation: tA_azimuth=xi-2*zetaB; after left-transpose zetaB phase ***###
+## first find the sperical coord of t-vector
+chi=float(mp.asin(sinChi) % pi2)  #polar angle of t-vector
+if b_norm !=0:    #if b=0 then t is undefined
+    xi = float(mp.atan2(t[1],t[0]))  #atan2 range is (-pi, pi]
+    new_xi=xi % pi2  #back to old xi (not include 2ZetaB)
+#     new_xi=(xi-2*zetaB) % pi2
+    new_t=np.array([sinChi*np.cos(new_xi), sinChi*np.sin(new_xi), t[2]])  #new tA-vector
+    new_tA=np.quaternion(0, new_t[0], new_t[1], new_t[2])  #new tA-quaternion, unit, pure-imaginary
+else:
+    new_t=np.array([0, 0, 1])
+    new_tA=np.quaternion(0,0,0,1)  #new_tA=k    
