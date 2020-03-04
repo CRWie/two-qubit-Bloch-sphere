@@ -2,7 +2,7 @@
 This repository provides Python3 codes to plot Bloch spheres for two-qubit pure-states. 
 If you give the complex amplitudes alpha, beta, gamma and delta, then the codes plot the three Bloch spheres.
 
-A complete description of the Bloch spheres can be found in this article arXiv:2003.01699
+A complete description of the Bloch spheres can be found in this article:   https://arxiv.org/abs/2003.01699
 
 In order to plot the Bloch spheres, the *_Calculation files take the Input of the Complex Amplitudes and calculates the Bloch sphere coordinates using a simple quaternion algebra. After the calculation, the three spheres are plotted:  BASE, ENTANGLEMENT, and FIBER.
 
