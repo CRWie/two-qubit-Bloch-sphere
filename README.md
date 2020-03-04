@@ -30,7 +30,7 @@ ABSTRACT of the article:   arXiv:2003.01699
 
 MIT License
 
-Copyright (c) [2020] [C.R.Wie]
+Copyright (c) 2020, C.R.Wie
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
