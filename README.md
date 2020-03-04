@@ -9,12 +9,12 @@ In order to plot the Bloch spheres, the *_Calculation files take the Input of th
 For a given bipartite state, we can plot two equivalent sets of three spheres depending on which qubit is in the base.
 You can copy/paste the Python3 codes into four Jupyter Notebook input boxes and run them in order.
 
-I.  Qubit-A is in the base
+I.  Qubit-A is in the base: 
 This is for qubit-A as the base qubit and qubit-B as the fiber qubit.
 BASE(A)_Calculation => BASE(A)_PLOT => ENTANGLEMENT(A)_PLOT => FIBER(B)_PLOT
 
 
-II. Qubit-B is in the base
+II. Qubit-B is in the base: 
 This is for qubit-B as the base qubit and qubit-A as the fiber qubit.
 BASE(B)_Calculation => BASE(B)_PLOT => ENTANGLEMENT(B)_PLOT => FIBER(A)_PLOT
 
